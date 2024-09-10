@@ -1,0 +1,484 @@
+<html><head><base href="https://modern-intuitive-piano.example.com/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piano Virtual Moderno e Intuitivo con Grabaciones</title>
+<style>
+  :root {
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+    --white-key: #f5f5f5;
+    --black-key: #333;
+    --active-white: #e0e0e0;
+    --active-black: #555;
+  }
+  body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    overflow: hidden;
+  }
+  .container {
+    background-color: #000000;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    max-width: 95vw;
+    overflow-x: auto;
+  }
+  .piano {
+    display: flex;
+    justify-content: center;
+  }
+  .key {
+    width: 50px;
+    height: 200px;
+    border: 1px solid #ddd;
+    border-radius: 0 0 5px 5px;
+    margin: 0 2px;
+    transition: all 0.1s;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+  }
+  .white {
+    background-color: var(--white-key);
+  }
+  .black {
+    background-color: var(--black-key);
+    width: 30px;
+    height: 120px;
+    margin: 0 -15px;
+    z-index: 1;
+  }
+  .key.active {
+    transform: translateY(5px);
+  }
+  .white.active {
+    background-color: var(--active-white);
+  }
+  .black.active {
+    background-color: var(--active-black);
+  }
+  .key-label {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: var(--secondary-color);
+  }
+  .black .key-label {
+    color: var(--white-key);
+  }
+  .controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .control-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .control-btn:hover {
+    background-color: var(--secondary-color);
+  }
+  #soundSelect, #recordingSelect {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    margin: 5px;
+    background-color: var(--white-key);
+    color: var(--secondary-color);
+  }
+  #recordingsList {
+    margin-top: 20px;
+    color: var(--white-key);
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-content {
+    background-color: var(--secondary-color);
+    padding: 30px;
+    border-radius: 20px;
+    width: 300px;
+    color: var(--white-key);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+  .modal-content h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+  }
+  #recordingName {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--white-key);
+    color: var(--secondary-color);
+  }
+  #saveRecordingBtn, #cancelSaveBtn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  #saveRecordingBtn:hover, #cancelSaveBtn:hover {
+    background-color: var(--secondary-color);
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="piano">
+      <div class="key white" data-note="C3"><span class="key-label">A</span></div>
+      <div class="key black" data-note="C#3"><span class="key-label">W</span></div>
+      <div class="key white" data-note="D3"><span class="key-label">S</span></div>
+      <div class="key black" data-note="D#3"><span class="key-label">E</span></div>
+      <div class="key white" data-note="E3"><span class="key-label">D</span></div>
+      <div class="key white" data-note="F3"><span class="key-label">F</span></div>
+      <div class="key black" data-note="F#3"><span class="key-label">T</span></div>
+      <div class="key white" data-note="G3"><span class="key-label">G</span></div>
+      <div class="key black" data-note="G#3"><span class="key-label">Y</span></div>
+      <div class="key white" data-note="A3"><span class="key-label">H</span></div>
+      <div class="key black" data-note="A#3"><span class="key-label">U</span></div>
+      <div class="key white" data-note="B3"><span class="key-label">J</span></div>
+      <div class="key white" data-note="C4"><span class="key-label">K</span></div>
+      <div class="key black" data-note="C#4"><span class="key-label">O</span></div>
+      <div class="key white" data-note="D4"><span class="key-label">L</span></div>
+      <div class="key black" data-note="D#4"><span class="key-label">P</span></div>
+      <div class="key white" data-note="E4"><span class="key-label">Ñ</span></div>
+    </div>
+    <div class="controls">
+      <button class="control-btn" id="recordBtn" data-shortcut="1">Grabar (1)</button>
+      <button class="control-btn" id="playBtn" data-shortcut="2">Reproducir (2)</button>
+      <button class="control-btn" id="metronomeBtn" data-shortcut="3">Metrónomo (3)</button>
+      <select id="soundSelect" data-shortcut="4">
+        <option value="piano">Piano</option>
+        <option value="synth">Sintetizador</option>
+        <option value="electric">Piano Eléctrico</option>
+      </select>
+      <button class="control-btn" id="saveBtn" data-shortcut="5">Guardar Grabación (5)</button>
+      <select id="recordingSelect" data-shortcut="6">
+        <option value="">Seleccionar grabación</option>
+      </select>
+    </div>
+    <div id="recordingsList"></div>
+    <div id="saveModal" class="modal">
+      <div class="modal-content">
+        <h2>Guardar Grabación</h2>
+        <input type="text" id="recordingName" placeholder="Nombre de la grabación">
+        <div>
+          <button id="saveRecordingBtn">Guardar</button>
+          <button id="cancelSaveBtn">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <script>
+    let currentInstrument;
+    const instruments = {
+      piano: null,
+      synth: null,
+      electric: null
+    };
+
+    async function initInstruments() {
+      instruments.piano = new Tone.Sampler({
+        urls: {
+          "C4": "C4.mp3",
+          "D#4": "Ds4.mp3",
+          "F#4": "Fs4.mp3",
+          "A4": "A4.mp3",
+        },
+        baseUrl: "https://tonejs.github.io/audio/salamander/",
+      }).toDestination();
+
+      instruments.synth = new Tone.PolySynth(Tone.Synth).toDestination();
+
+      instruments.electric = new Tone.Sampler({
+        urls: {
+          A1: "A1.mp3",
+          A2: "A2.mp3",
+          A3: "A3.mp3",
+          A4: "A4.mp3",
+          A5: "A5.mp3",
+          A6: "A6.mp3",
+          C1: "C1.mp3",
+          C2: "C2.mp3",
+          C3: "C3.mp3",
+          C4: "C4.mp3",
+          C5: "C5.mp3",
+          C6: "C6.mp3",
+          "D#1": "Ds1.mp3",
+          "D#2": "Ds2.mp3",
+          "D#3": "Ds3.mp3",
+          "D#4": "Ds4.mp3",
+          "D#5": "Ds5.mp3",
+          "D#6": "Ds6.mp3",
+          "F#1": "Fs1.mp3",
+          "F#2": "Fs2.mp3",
+          "F#3": "Fs3.mp3",
+          "F#4": "Fs4.mp3",
+          "F#5": "Fs5.mp3",
+          "F#6": "Fs6.mp3"
+        },
+        baseUrl: "https://tonejs.github.io/audio/salamander/",
+      }).toDestination();
+
+      await Tone.loaded();
+      currentInstrument = instruments.piano;
+    }
+
+    const keys = document.querySelectorAll('.key');
+    const recordBtn = document.getElementById('recordBtn');
+    const playBtn = document.getElementById('playBtn');
+    const metronomeBtn = document.getElementById('metronomeBtn');
+    const soundSelect = document.getElementById('soundSelect');
+    const saveBtn = document.getElementById('saveBtn');
+    const recordingSelect = document.getElementById('recordingSelect');
+    const recordingsList = document.getElementById('recordingsList');
+    const saveModal = document.getElementById('saveModal');
+    const recordingNameInput = document.getElementById('recordingName');
+    const saveRecordingBtn = document.getElementById('saveRecordingBtn');
+    const cancelSaveBtn = document.getElementById('cancelSaveBtn');
+
+    let isRecording = false;
+    let recordedNotes = [];
+    let startTime;
+    let metronome;
+    let isMetronomeOn = false;
+    let recordings = {};
+
+    keys.forEach(key => {
+      key.addEventListener('mousedown', () => playNote(key));
+      key.addEventListener('mouseup', () => stopNote(key));
+      key.addEventListener('mouseleave', () => stopNote(key));
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.repeat) return;
+      const key = getKeyByLetter(e.key);
+      if (key) playNote(key);
+    });
+
+    document.addEventListener('keyup', e => {
+      const key = getKeyByLetter(e.key);
+      if (key) stopNote(key);
+    });
+
+    function playNote(key) {
+      if (!currentInstrument) return;
+      const note = key.dataset.note;
+      currentInstrument.triggerAttack(note);
+      key.classList.add('active');
+      if (isRecording) {
+        recordedNotes.push({ note, time: Date.now() - startTime });
+      }
+    }
+
+    function stopNote(key) {
+      if (!currentInstrument) return;
+      const note = key.dataset.note;
+      currentInstrument.triggerRelease(note);
+      key.classList.remove('active');
+    }
+
+    function getKeyByLetter(letter) {
+      const keyMap = {
+        'a': 'C3', 'w': 'C#3', 's': 'D3', 'e': 'D#3', 'd': 'E3', 'f': 'F3',
+        't': 'F#3', 'g': 'G3', 'y': 'G#3', 'h': 'A3', 'u': 'A#3', 'j': 'B3',
+        'k': 'C4', 'o': 'C#4', 'l': 'D4', 'p': 'D#4', 'ñ': 'E4'
+      };
+      const note = keyMap[letter.toLowerCase()];
+      return note ? document.querySelector(`.key[data-note="${note}"]`) : null;
+    }
+
+    function handleKeyboardShortcuts(e) {
+      if (e.target.tagName === 'INPUT') return;
+      
+      const key = e.key;
+      if (['1', '2', '3', '4', '5'].includes(key)) {
+        e.preventDefault();
+        const button = document.querySelector(`[data-shortcut="${key}"]`);
+        if (button) {
+          if (button.tagName === 'SELECT') {
+            button.focus();
+          } else {
+            button.click();
+          }
+        }
+      }
+    }
+
+    recordBtn.addEventListener('click', toggleRecording);
+    playBtn.addEventListener('click', playRecording);
+    metronomeBtn.addEventListener('click', toggleMetronome);
+    soundSelect.addEventListener('change', changeInstrument);
+    saveBtn.addEventListener('click', showSaveModal);
+    document.addEventListener('keydown', handleKeyboardShortcuts);
+
+    function toggleRecording() {
+      if (!isRecording) {
+        isRecording = true;
+        recordedNotes = [];
+        startTime = Date.now();
+        recordBtn.textContent = 'Detener (1)';
+        recordBtn.style.backgroundColor = '#e74c3c';
+      } else {
+        isRecording = false;
+        recordBtn.textContent = 'Grabar (1)';
+        recordBtn.style.backgroundColor = '';
+      }
+    }
+
+    function playRecording() {
+      const selectedRecording = recordingSelect.value;
+      const notesToPlay = selectedRecording ? recordings[selectedRecording] : recordedNotes;
+      
+      if (notesToPlay.length === 0) return;
+      notesToPlay.forEach(note => {
+        setTimeout(() => {
+          const key = document.querySelector(`.key[data-note="${note.note}"]`);
+          playNote(key);
+          setTimeout(() => stopNote(key), 200);
+        }, note.time);
+      });
+    }
+
+    function toggleMetronome() {
+      if (!isMetronomeOn) {
+        metronome = new Tone.Loop(time => {
+          const click = new Tone.MembraneSynth({
+            volume: -20
+          }).toDestination();
+          click.triggerAttackRelease("C2", "16n", time);
+        }, "4n");
+        Tone.Transport.start();
+        metronome.start(0);
+        isMetronomeOn = true;
+        metronomeBtn.textContent = 'Detener Metrónomo (3)';
+        metronomeBtn.style.backgroundColor = '#e74c3c';
+      } else {
+        metronome.stop();
+        Tone.Transport.stop();
+        isMetronomeOn = false;
+        metronomeBtn.textContent = 'Metrónomo (3)';
+        metronomeBtn.style.backgroundColor = '';
+      }
+    }
+
+    function changeInstrument(e) {
+      currentInstrument = instruments[e.target.value];
+    }
+
+    function showSaveModal() {
+      if (recordedNotes.length === 0) {
+        alert('No hay notas grabadas para guardar.');
+        return;
+      }
+      saveModal.style.display = 'block';
+    }
+
+    saveRecordingBtn.addEventListener('click', () => {
+      const name = recordingNameInput.value.trim();
+      if (name) {
+        recordings[name] = recordedNotes;
+        updateRecordingsList();
+        saveModal.style.display = 'none';
+        recordingNameInput.value = '';
+      } else {
+        alert('Por favor, ingrese un nombre para la grabación.');
+      }
+    });
+
+    cancelSaveBtn.addEventListener('click', () => {
+      saveModal.style.display = 'none';
+      recordingNameInput.value = '';
+    });
+
+    window.addEventListener('click', (event) => {
+      if (event.target === saveModal) {
+        saveModal.style.display = 'none';
+        recordingNameInput.value = '';
+      }
+    });
+
+    function updateRecordingsList() {
+      const recordingSelect = document.getElementById('recordingSelect');
+      const recordingsList = document.getElementById('recordingsList');
+
+      if (recordingSelect) {
+        recordingSelect.innerHTML = '<option value="">Seleccionar grabación</option>';
+      }
+
+      if (recordingsList) {
+        recordingsList.innerHTML = '<h3>Grabaciones guardadas:</h3>';
+      }
+
+      for (const name in recordings) {
+        if (recordingSelect) {
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          recordingSelect.appendChild(option);
+        }
+
+        if (recordingsList) {
+          const listItem = document.createElement('div');
+          listItem.textContent = name;
+          recordingsList.appendChild(listItem);
+        }
+      }
+    }
+
+    if (recordingSelect) {
+      recordingSelect.addEventListener('change', () => {
+        const selectedRecording = recordingSelect.value;
+        if (selectedRecording && recordings[selectedRecording]) {
+          recordedNotes = recordings[selectedRecording];
+        }
+      });
+    }
+
+    document.body.addEventListener('click', async () => {
+      await Tone.start();
+      if (!currentInstrument) {
+        await initInstruments();
+      }
+      console.log('Audio is ready');
+    });
+
+    window.addEventListener('load', initInstruments);
+  </script>
+</body>
+</html>
