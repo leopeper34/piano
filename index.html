@@ -153,6 +153,33 @@
   #saveRecordingBtn:hover, #cancelSaveBtn:hover {
     background-color: var(--secondary-color);
   }
+  @media (max-width: 768px) {
+    .container {
+      padding: 15px;
+    }
+    .piano {
+      flex-wrap: wrap;
+    }
+    .key {
+      width: 40px;
+      height: 160px;
+    }
+    .black {
+      width: 24px;
+      height: 100px;
+      margin: 0 -12px;
+    }
+    .key-label {
+      font-size: 10px;
+    }
+    .controls {
+      flex-direction: column;
+    }
+    .control-btn, #soundSelect, #recordingSelect {
+      width: 100%;
+      margin: 5px 0;
+    }
+  }
 </style>
 </head>
 <body>
@@ -283,6 +310,19 @@
       key.addEventListener('mousedown', () => playNote(key));
       key.addEventListener('mouseup', () => stopNote(key));
       key.addEventListener('mouseleave', () => stopNote(key));
+      key.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        playNote(key);
+      });
+      key.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        stopNote(key);
+      });
+    });
+
+    document.addEventListener('touchmove', handleTouch);
+    document.addEventListener('touchend', () => {
+      keys.forEach(key => stopNote(key));
     });
 
     document.addEventListener('keydown', e => {
@@ -468,6 +508,15 @@
           recordedNotes = recordings[selectedRecording];
         }
       });
+    }
+
+    function handleTouch(e) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const key = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (key && key.classList.contains('key')) {
+        playNote(key);
+      }
     }
 
     document.body.addEventListener('click', async () => {
